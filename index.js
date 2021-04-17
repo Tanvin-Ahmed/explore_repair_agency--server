@@ -73,9 +73,8 @@ client.connect(err => {
     });
 
     app.post('/placeOrder', (req, res) => {
-        const newOrder = req.body.newOrder;
-        console.log(newOrder);
-        orderCollection.insertOne({newOrder})
+        const newOrder = req.body;
+        orderCollection.insertOne(newOrder)
         .then(result => res.status(201).send(result.insertedCount > 0))
         .catch(err => res.status(500).send(err));
     });
@@ -101,7 +100,7 @@ client.connect(err => {
                 } else {
                     res.status(200).send(category);
                 }
-            });
+            })
     });
     // get category wise service item
     app.get('/serviceItem/:category', (req, res) => {
@@ -113,7 +112,7 @@ client.connect(err => {
                 } else {
                     res.status(200).send(items);
                 }
-            });
+            })
     });
 
     app.get('/getAllReview', (req, res) => {
@@ -124,7 +123,33 @@ client.connect(err => {
             } else {
                 res.status(200).send(reviews);
             }
-        });
+        })
+    });
+
+    app.get('/isAdmin/:email', (req, res) => {
+        const email = req.params.email;
+        adminCollection.find({ adminEmail: email })
+        .toArray((err, results) => {
+            if (err) {
+                res.status(404).send(err);
+            } else {
+                res.status(200).send(results.length > 0);
+            }
+        })
+    });
+
+    app.get('/userOrderList/:email', (req, res) => {
+        const email = req.params.email;
+        if (email) {
+            orderCollection.find({ email })
+            .toArray((err, orders) => {
+                if (err) {
+                    res.status(404).send(err);
+                } else {
+                    res.status(200).send(orders);
+                }
+            })
+        }
     });
 
 
