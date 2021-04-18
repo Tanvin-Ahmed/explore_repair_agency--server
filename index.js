@@ -163,6 +163,17 @@ client.connect(err => {
             })
     });
 
+    app.get('/service/:id', (req, res) => {
+        serviceCollection.find({_id: ObjectID(req.params.id)})
+        .toArray((err, service) => {
+            if (err) {
+                res.status(404).send(err);
+            } else {
+                res.status(200).send(service[0]);
+            }
+        })
+    });
+
 
     ///////////////// delete /////////////
 
