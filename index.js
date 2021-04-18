@@ -75,17 +75,17 @@ client.connect(err => {
     app.post('/placeOrder', (req, res) => {
         const newOrder = req.body;
         orderCollection.insertOne(newOrder)
-        .then(result => res.status(201).send(result.insertedCount > 0))
-        .catch(err => res.status(500).send(err));
+            .then(result => res.status(201).send(result.insertedCount > 0))
+            .catch(err => res.status(500).send(err));
     });
 
     app.post('/addReview', (req, res) => {
         const review = req.body.newReview;
         reviewCollection.insertOne(review)
-        .then((result) => {
-            res.status(201).send(result.insertedCount > 0);
-        })
-        .catch(err => res.status(500).send(err));
+            .then((result) => {
+                res.status(201).send(result.insertedCount > 0);
+            })
+            .catch(err => res.status(500).send(err));
     });
 
     //////////////////////get////////////////////////////////
@@ -117,31 +117,43 @@ client.connect(err => {
 
     app.get('/getAllReview', (req, res) => {
         reviewCollection.find({})
-        .toArray((err, reviews) => {
-            if (err) {
-                res.status(404).send(err);
-            } else {
-                res.status(200).send(reviews);
-            }
-        })
+            .toArray((err, reviews) => {
+                if (err) {
+                    res.status(404).send(err);
+                } else {
+                    res.status(200).send(reviews);
+                }
+            })
     });
 
     app.get('/isAdmin/:email', (req, res) => {
         const email = req.params.email;
         adminCollection.find({ adminEmail: email })
-        .toArray((err, results) => {
-            if (err) {
-                res.status(404).send(err);
-            } else {
-                res.status(200).send(results.length > 0);
-            }
-        })
+            .toArray((err, results) => {
+                if (err) {
+                    res.status(404).send(err);
+                } else {
+                    res.status(200).send(results.length > 0);
+                }
+            })
     });
 
     app.get('/userOrderList/:email', (req, res) => {
         const email = req.params.email;
         if (email) {
             orderCollection.find({ email })
+                .toArray((err, orders) => {
+                    if (err) {
+                        res.status(404).send(err);
+                    } else {
+                        res.status(200).send(orders);
+                    }
+                })
+        }
+    });
+
+    app.get('/getFullOrderList', (req, res) => {
+        orderCollection.find({})
             .toArray((err, orders) => {
                 if (err) {
                     res.status(404).send(err);
@@ -149,7 +161,6 @@ client.connect(err => {
                     res.status(200).send(orders);
                 }
             })
-        }
     });
 
 
@@ -186,6 +197,16 @@ client.connect(err => {
         serviceCollection.updateOne({ _id: ObjectID(req.params.id) }, { $set: { serviceName: req.body.serviceName, description: req.body.description, fee: req.body.fee } })
             .then(result => { res.status(200).send(result.modifiedCount > 0) })
             .catch(err => { res.status(404).send(err) });
+    });
+
+    app.patch('/updateStatus/:id', (req, res) => {
+        orderCollection.updateOne({ _id: ObjectID(req.params.id) }, {
+            $set: { status: req.body.value }
+        })
+            .then(result => {
+                res.status(200).send(result.modifiedCount > 0);
+            })
+            .catch(err => res.status(404).send(err));
     });
 
 });
